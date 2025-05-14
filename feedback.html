@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hoarding Management - Feedback</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Your existing CSS styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #f0f2f5, #e8eaf6);
+      overflow-x: hidden;
+      transition: margin-left 0.4s;
+      min-height: 100vh;
+      position: relative;
+      padding-bottom: 100px;
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 80px;
+      background: rgba(130, 140, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 20px 0;
+      transition: width 0.4s ease;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+      border-right: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .sidebar:hover {
+      width: 240px;
+    }
+
+    .sidebar .logo {
+      color: #4a4e69;
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 30px;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .sidebar:hover .logo {
+      opacity: 1;
+    }
+
+    .sidebar .menu {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar .menu li {
+      padding: 15px 20px;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .sidebar .menu li:hover {
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+    }
+
+    .sidebar .menu li a {
+      text-decoration: none;
+      color: #4a4e69;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: 0.4s;
+    }
+
+    .sidebar .menu li a i {
+      min-width: 30px;
+      font-size: 1.6rem;
+      margin-right: 10px;
+      transition: transform 0.3s, color 0.3s;
+    }
+
+    .sidebar .menu li:hover a i {
+      transform: rotate(20deg);
+      color: #6c5ce7;
+    }
+
+    /* Content styles */
+    .content {
+      margin-left: 90px;
+      padding: 40px 30px;
+      transition: margin-left 0.4s ease;
+    }
+
+    .sidebar:hover ~ .content {
+      margin-left: 260px;
+    }
+
+    .header {
+      font-size: 2.4rem;
+      color: #22223b;
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .filter-bar {
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .card-columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .card {
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+      border: none;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 18px;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .pagination {
+      margin-top: 20px;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 20px 10px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid rgba(0,0,0,0.05);
+      font-size: 14px;
+      color: #555;
+    }
+
+    .filter-input {
+      width: 220px;
+    }
+
+    .btn-primary {
+      background-color: #6c5ce7;
+      border-color: #6c5ce7;
+    }
+
+    .btn-primary:hover {
+      background-color: #5c54e0;
+      border-color: #5c54e0;
+    }
+
+    .feedback-status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+
+    .status-positive {
+      background-color: #e6fffa;
+      color: #009970;
+    }
+
+    .status-negative {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    .status-neutral {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">Hoarding</div>
+    <ul class="menu">
+      <li><a href="dashboard.jsp"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="listing.html"><i class="fas fa-list"></i> Listings</a></li>
+      <li><a href="booking.jsp"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+      <li><a href="feedback.html"><i class="fas fa-comment"></i> Feedback</a></li>
+      <li><a href="settings.jsp"><i class="fas fa-cogs"></i> Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Header Section -->
+    <div class="header">
+      <h1>Feedback</h1>
+      <p>View and manage feedback from clients.</p>
+    </div>
+
+    <!-- Filters and Search Bar -->
+    <div class="filter-bar">
+      <input type="text" class="form-control filter-input" placeholder="Search by client name or feedback" id="searchInput">
+      <div>
+        <button class="btn btn-primary">Filter by Status</button>
+        <button class="btn btn-primary">Filter by Date</button>
+      </div>
+    </div>
+
+    <!-- Add New Feedback Button -->
+    <div class="text-right">
+      <button class="btn btn-success" data-toggle="modal" data-target="#addFeedbackModal">
+        <i class="fas fa-plus"></i> Add New Feedback
+      </button>
+    </div>
+
+    <!-- Feedback Table -->
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Feedback ID</th>
+            <th>Client Name</th>
+            <th>Feedback</th>
+            <th>Rating</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>FB001</td>
+            <td>John Doe</td>
+            <td>Great service and visibility!</td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td>2025-05-01</td>
+            <td><span class="feedback-status status-positive">Positive</span></td>
+            <td>
+              <button class="btn btn-sm btn-primary">View</button>
+              <button class="btn btn-sm btn-warning">Edit</button>
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>FB002</td>
+            <td>Jane Smith</td>
+            <td>Could be better in terms of location.</td>
+            <td>⭐⭐⭐</td>
+            <td>2025-06-15</td>
+            <td><span class="feedback-status status-negative">Negative</span></td>
+            <td>
+              <button class="btn btn-sm btn-primary">View</button>
+              <button class="btn btn-sm btn-warning">Edit</button>
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>FB003</td>
+            <td>Robert Johnson</td>
+            <td>Good overall experience.</td>
+            <td>⭐⭐⭐⭐</td>
+            <td>2025-04-01</td>
+            <td><span class="feedback-status status-neutral">Neutral</span></td>
+            <td>
+              <button class="btn btn-sm btn-primary">View</button>
+              <button class="btn btn-sm btn-warning">Edit</button>
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="container mt-5">
+      <h2>Contact Information</h2>
+      <p>For any inquiries or further assistance, please contact us using the information below:</p>
+      <div class="row">
+        <div class="col-md-6">
+          <h4>Email</h4>
+          <p>info@hoardingmgmt.com</p>
+        </div>
+        <div class="col-md-6">
+          <h4>Phone</h4>
+          <p>+123 456 7890</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <h4>Address</h4>
+          <p>123 Hoarding Street, City, Country</p>
+        </div>
+        <div class="col-md-6">
+          <h4>Website</h4>
+          <p><a href="https://www.hoardingmgmt.com">www.hoardingmgmt.com</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+      &copy; 2025 Hoarding Management Dashboard. All rights reserved.
+    </div>
+
+    <!-- Modal for Adding New Feedback -->
+    <div class="modal fade" id="addFeedbackModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Add New Feedback</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="clientName">Client Name</label>
+                <input type="text" class="form-control" id="clientName" placeholder="Enter client name">
+              </div>
+              <div class="form-group">
+                <label for="feedbackText">Feedback</label>
+                <textarea class="form-control" id="feedbackText" rows="4" placeholder="Enter feedback"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="feedbackRating">Rating</label>
+                <select class="form-control" id="feedbackRating">
+                  <option>⭐⭐⭐⭐⭐</option>
+                  <option>⭐⭐⭐⭐</option>
+                  <option>⭐⭐⭐</option>
+                  <option>⭐⭐</option>
+                  <option>⭐</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="feedbackStatus">Status</label>
+                <select class="form-control" id="feedbackStatus">
+                  <option>Positive</option>
+                  <option>Negative</option>
+                  <option>Neutral</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Submit Feedback</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      // Function to add new feedback
+      function addFeedback(event) {
+        event.preventDefault();
+        // In a real application, you would collect form data and send it to the server
+        alert('Feedback submitted successfully!');
+        $('#addFeedbackModal').modal('hide');
+      }
+
+      // Add event listener to the feedback form
+      document.querySelector('#addFeedbackModal form').addEventListener('submit', addFeedback);
+    </script>
+</body>
+</html>

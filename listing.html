@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hoarding Management - Listings</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #f0f2f5, #e8eaf6);
+      overflow-x: hidden;
+      transition: margin-left 0.4s;
+      min-height: 100vh;
+      position: relative;
+      padding-bottom: 100px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 80px;
+      background: rgba(130, 140, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 20px 0;
+      transition: width 0.4s ease;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+      border-right: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .sidebar:hover {
+      width: 240px;
+    }
+
+    .sidebar .logo {
+      color: #4a4e69;
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 30px;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .sidebar:hover .logo {
+      opacity: 1;
+    }
+
+    .sidebar .menu {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar .menu li {
+      padding: 15px 20px;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .sidebar .menu li:hover {
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+    }
+
+    .sidebar .menu li a {
+      text-decoration: none;
+      color: #4a4e69;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: 0.4s;
+    }
+
+    .sidebar .menu li a i {
+      min-width: 30px;
+      font-size: 1.6rem;
+      margin-right: 10px;
+      transition: transform 0.3s, color 0.3s;
+    }
+
+    .sidebar .menu li:hover a i {
+      transform: rotate(20deg);
+      color: #6c5ce7;
+    }
+
+    /* Content */
+    .content {
+      margin-left: 90px;
+      padding: 40px 30px;
+      transition: margin-left 0.4s ease;
+    }
+
+    .sidebar:hover ~ .content {
+      margin-left: 260px;
+    }
+
+    .header {
+      font-size: 2.4rem;
+      color: #22223b;
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .hero-small {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(6px);
+      padding: 50px 30px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .filter-bar {
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .card-columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .card {
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+      border: none;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 18px;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .pagination {
+      margin-top: 20px;
+    }
+
+    .chart-container {
+      margin-top: 40px;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 20px 10px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid rgba(0,0,0,0.05);
+      font-size: 14px;
+      color: #555;
+    }
+
+    .filter-input {
+      width: 220px;
+    }
+
+    .btn-primary {
+      background-color: #6c5ce7;
+      border-color: #6c5ce7;
+    }
+
+    .btn-primary:hover {
+      background-color: #5c54e0;
+      border-color: #5c54e0;
+    }
+
+    .listing-status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+
+    .status-available {
+      background-color: #e6ffe6;
+      color: #2e7d32;
+    }
+
+    .status-booked {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+
+    .status-maintenance {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo">Hoarding</div>
+    <ul class="menu">
+      <li><a href="dashboard.jsp"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="listing.html"><i class="fas fa-list"></i> Listings</a></li>
+      <li><a href="booking.jsp"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+      <li><a href="feedback.html"><i class="fas fa-comment"></i> Feedback</a></li>
+      <li><a href="settings.jsp"><i class="fas fa-cogs"></i> Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Header Section -->
+    <div class="header">
+      <h1>Hoarding Listings</h1>
+      <p>Manage your hoardings efficiently with powerful filters and sorting options.</p>
+    </div>
+
+    <!-- Filters and Search Bar -->
+    <div class="filter-bar">
+      <input type="text" class="form-control filter-input" placeholder="Search by location or size" id="searchInput">
+      <div>
+        <button class="btn btn-primary">Filter by Status</button>
+        <button class="btn btn-primary">Filter by Price</button>
+      </div>
+    </div>
+
+    <!-- Add New Listing Button -->
+    <div class="text-right">
+      <button class="btn btn-success" data-toggle="modal" data-target="#addListingModal">
+        <i class="fas fa-plus"></i> Add New Listing
+      </button>
+    </div>
+
+    <!-- Hoarding Listings -->
+    <div class="card-columns" id="listingCards">
+      <!-- Dynamic Cards Will Be Added Here by JS -->
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="chart-container">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <h4>Hoarding Status Overview</h4>
+            <canvas id="hoardingStatusChart"></canvas>
+          </div>
+          <div class="col-md-6">
+            <h4>Revenue Potential</h4>
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <div class="footer">
+    &copy; 2025 Hoarding Management Dashboard. All rights reserved.
+  </div>
+
+  <!-- Modal for Adding New Listing -->
+  <div class="modal fade" id="addListingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Add New Hoarding</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="hoardingName">Hoarding Name</label>
+              <input type="text" class="form-control" id="hoardingName" placeholder="Enter hoarding name">
+            </div>
+            <div class="form-group">
+              <label for="hoardingLocation">Location</label>
+              <input type="text" class="form-control" id="hoardingLocation" placeholder="Enter location">
+            </div>
+            <div class="form-group">
+              <label for="hoardingPrice">Price</label>
+              <input type="number" class="form-control" id="hoardingPrice" placeholder="Enter price">
+            </div>
+            <div class="form-group">
+              <label for="hoardingStatus">Status</label>
+              <select class="form-control" id="hoardingStatus">
+                <option>Available</option>
+                <option>Booked</option>
+                <option>Under Maintenance</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Add Listing</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Data for charts
+    const hoardingStatusData = {
+      labels: ['Available', 'Booked', 'Under Maintenance'],
+      datasets: [{
+        data: [50, 30, 20],
+        backgroundColor: ['#4caf50', '#ff9800', '#f44336'],
+      }]
+    };
+
+    const revenueData = {
+      labels: ['Location 1', 'Location 2', 'Location 3'],
+      datasets: [{
+        data: [1500, 2000, 1200],
+        backgroundColor: ['#6c5ce7', '#00bcd4', '#ff5722'],
+      }]
+    };
+
+    // Create Hoarding Status Chart
+    const hoardingStatusChart = new Chart(document.getElementById('hoardingStatusChart'), {
+      type: 'pie',
+      data: hoardingStatusData,
+    });
+
+    // Create Revenue Chart
+    const revenueChart = new Chart(document.getElementById('revenueChart'), {
+      type: 'bar',
+      data: revenueData,
+    });
+
+    // Sample Data for Listings
+    const listings = [
+      { id: 1, name: 'Billboard A', location: 'Downtown', status: 'Available', price: 1000 },
+      { id: 2, name: 'Billboard B', location: 'Highway', status: 'Booked', price: 1500 },
+      { id: 3, name: 'Billboard C', location: 'Mall', status: 'Under Maintenance', price: 1200 },
+    ];
+
+    // Render Listings Dynamically
+    const listingCardsContainer = document.getElementById('listingCards');
+    listings.forEach(listing => {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.innerHTML = `
+        <div class="card-body">
+          <h5 class="card-title">${listing.name}</h5>
+          <p class="card-text">${listing.location}</p>
+          <p class="card-text">Status: 
+            <span class="listing-status status-${listing.status.toLowerCase().replace(' ', '-')}">
+              ${listing.status}
+            </span>
+          </p>
+          <p class="card-text">Price: $${listing.price}</p>
+          <button class="btn btn-primary" onclick="viewDetails(${listing.id})">View Details</button>
+        </div>
+      `;
+      listingCardsContainer.appendChild(card);
+    });
+
+    // View Details function (for modal or detailed page)
+    function viewDetails(id) {
+      alert(`View details for Hoarding ID: ${id}`);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hoarding Management - Bookings</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Your existing CSS styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #f0f2f5, #e8eaf6);
+      overflow-x: hidden;
+      transition: margin-left 0.4s;
+      min-height: 100vh;
+      position: relative;
+      padding-bottom: 100px;
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 80px;
+      background: rgba(130, 140, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 20px 0;
+      transition: width 0.4s ease;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+      border-right: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .sidebar:hover {
+      width: 240px;
+    }
+
+    .sidebar .logo {
+      color: #4a4e69;
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 30px;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .sidebar:hover .logo {
+      opacity: 1;
+    }
+
+    .sidebar .menu {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar .menu li {
+      padding: 15px 20px;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .sidebar .menu li:hover {
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+    }
+
+    .sidebar .menu li a {
+      text-decoration: none;
+      color: #4a4e69;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: 0.4s;
+    }
+
+    .sidebar .menu li a i {
+      min-width: 30px;
+      font-size: 1.6rem;
+      margin-right: 10px;
+      transition: transform 0.3s, color 0.3s;
+    }
+
+    .sidebar .menu li:hover a i {
+      transform: rotate(20deg);
+      color: #6c5ce7;
+    }
+
+    /* Content styles */
+    .content {
+      margin-left: 90px;
+      padding: 40px 30px;
+      transition: margin-left 0.4s ease;
+    }
+
+    .sidebar:hover ~ .content {
+      margin-left: 260px;
+    }
+
+    .header {
+      font-size: 2.4rem;
+      color: #22223b;
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .filter-bar {
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .card-columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .card {
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+      border: none;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 18px;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .pagination {
+      margin-top: 20px;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 20px 10px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid rgba(0,0,0,0.05);
+      font-size: 14px;
+      color: #555;
+    }
+
+    .filter-input {
+      width: 220px;
+    }
+
+    .btn-primary {
+      background-color: #6c5ce7;
+      border-color: #6c5ce7;
+    }
+
+    .btn-primary:hover {
+      background-color: #5c54e0;
+      border-color: #5c54e0;
+    }
+
+    .booking-status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+
+    .status-upcoming {
+      background-color: #e6f7ff;
+      color: #0066cc;
+    }
+
+    .status-active {
+      background-color: #e6fffa;
+      color: #009970;
+    }
+
+    .status-completed {
+      background-color: #f0f9eb;
+      color: #67c23a;
+    }
+
+    .status-cancelled {
+      background-color: #fef0f0;
+      color: #f56c6c;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">Hoarding</div>
+    <ul class="menu">
+      <li><a href="dashboard.jsp"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="listing.html"><i class="fas fa-list"></i> Listings</a></li>
+      <li><a href="booking.jsp"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+      <li><a href="feedback.html"><i class="fas fa-comment"></i> Feedback</a></li>
+      <li><a href="settings.jsp"><i class="fas fa-cogs"></i> Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Header Section -->
+    <div class="header">
+      <h1>Hoarding Bookings</h1>
+      <p>Manage and track all your hoarding bookings in one place.</p>
+    </div>
+
+    <!-- Filters and Search Bar -->
+    <div class="filter-bar">
+      <input type="text" class="form-control filter-input" placeholder="Search by hoarding name, client, or booking ID" id="searchInput">
+      <div>
+        <button class="btn btn-primary">Filter by Status</button>
+        <button class="btn btn-primary">Filter by Date</button>
+      </div>
+    </div>
+
+    <!-- Add New Booking Button -->
+    <div class="text-right">
+      <button class="btn btn-success" data-toggle="modal" data-target="#addBookingModal">
+        <i class="fas fa-plus"></i> Add New Booking
+      </button>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>Hoarding Name</th>
+            <th>Client Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Total Amount</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>BK001</td>
+            <td>Billboard A</td>
+            <td>John Doe</td>
+            <td>2025-05-01</td>
+            <td>2025-05-31</td>
+            <td><span class="booking-status status-active">Active</span></td>
+            <td>$1500</td>
+            <td>
+              <button class="btn btn-sm btn-primary">View</button>
+              <button class="btn btn-sm btn-warning">Edit</button>
+              <button class="btn btn-sm btn-danger">Cancel</button>
+            </td>
+          </tr>
+          <tr>
+            <td>BK002</td>
+            <td>Billboard B</td>
+            <td>Jane Smith</td>
+            <td>2025-06-15</td>
+            <td>2025-07-15</td>
+            <td><span class="booking-status status-upcoming">Upcoming</span></td>
+            <td>$2000</td>
+            <td>
+              <button class="btn btn-sm btn-primary">View</button>
+              <button class="btn btn-sm btn-warning">Edit</button>
+              <button class="btn btn-sm btn-danger">Cancel</button>
+            </td>
+          </tr>
+          <tr>
+            <td>BK003</td>
+            <td>Billboard C</td>
+            <td>Robert Johnson</td>
+            <td>2025-04-01</td>
+            <td>2025-04-30</td>
+            <td><span class="booking-status status-completed">Completed</span></td>
+            <td>$1200</td>
+            <td>
+              <button class="btn btn-sm btn-primary">View</button>
+              <button class="btn btn-sm btn-warning">Edit</button>
+              <button class="btn btn-sm btn-danger">Cancel</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="row mt-5">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h4>Booking Trends</h4>
+            <canvas id="bookingTrendsChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h4>Revenue Overview</h4>
+            <canvas id="revenueOverviewChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar View -->
+    <div class="card mt-5">
+      <div class="card-body">
+        <h4>Booking Calendar</h4>
+        <div id="bookingCalendar" style="height: 500px; background-color: #fff; border-radius: 10px; padding: 20px;">
+          <!-- Calendar will be rendered here -->
+          <p>Select a date range to view bookings:</p>
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <input type="date" id="startDate" />
+            <input type="date" id="endDate" />
+            <button class="btn btn-primary" onclick="renderCalendar()">View Bookings</button>
+          </div>
+          <div id="calendarDisplay" style="margin-top: 20px; min-height: 300px; background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
+            <!-- Calendar content will be displayed here -->
+            <p>No date range selected. Please select a start and end date to view bookings.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <div class="footer">
+    &copy; 2025 Hoarding Management Dashboard. All rights reserved.
+  </div>
+
+  <!-- Modal for Adding New Booking -->
+  <div class="modal fade" id="addBookingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Add New Booking</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="hoardingName">Hoarding Name</label>
+              <select class="form-control" id="hoardingName">
+                <option selected>Select a hoarding</option>
+                <option>Billboard A</option>
+                <option>Billboard B</option>
+                <option>Billboard C</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="clientName">Client Name</label>
+              <input type="text" class="form-control" id="clientName" placeholder="Enter client name">
+            </div>
+            <div class="form-group">
+              <label for="clientEmail">Client Email</label>
+              <input type="email" class="form-control" id="clientEmail" placeholder="Enter client email">
+            </div>
+            <div class="form-group">
+              <label for="startDate">Start Date</label>
+              <input type="date" class="form-control" id="startDate">
+            </div>
+            <div class="form-group">
+              <label for="endDate">End Date</label>
+              <input type="date" class="form-control" id="endDate">
+            </div>
+            <div class="form-group">
+              <label for="bookingStatus">Status</label>
+              <select class="form-control" id="bookingStatus">
+                <option>Upcoming</option>
+                <option>Active</option>
+                <option>Completed</option>
+                <option>Cancelled</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="totalAmount">Total Amount</label>
+              <input type="number" class="form-control" id="totalAmount" placeholder="Enter total amount">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Create Booking</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Data for charts
+    const bookingTrendsData = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Number of Bookings',
+        data: [12, 19, 15, 17, 20, 18, 22, 25, 23, 28, 30, 27],
+        backgroundColor: 'rgba(108, 93, 231, 0.6)',
+        borderColor: 'rgba(108, 93, 231, 1)',
+        borderWidth: 1
+      }]
+    };
+
+    const revenueOverviewData = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Revenue ($)',
+        data: [3000, 4500, 4200, 5000, 6000, 5800, 6500, 7200, 7000, 8000, 8500, 7800],
+        backgroundColor: 'rgba(100, 181, 246, 0.6)',
+        borderColor: 'rgba(100, 181, 246, 1)',
+        borderWidth: 1
+      }]
+    };
+
+    // Create Booking Trends Chart
+    const bookingTrendsChart = new Chart(document.getElementById('bookingTrendsChart'), {
+      type: 'line',
+      data: bookingTrendsData,
+    });
+
+    // Create Revenue Overview Chart
+    const revenueOverviewChart = new Chart(document.getElementById('revenueOverviewChart'), {
+      type: 'bar',
+      data: revenueOverviewData,
+    });
+
+    // Function to render calendar
+    function renderCalendar() {
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const calendarDisplay = document.getElementById('calendarDisplay');
+
+      if (!startDate || !endDate) {
+        calendarDisplay.innerHTML = '<p>Please select both start and end dates to view bookings.</p>';
+        return;
+      }
+
+      // This is a placeholder for calendar rendering logic
+      // In a real application, you would fetch bookings for the selected date range and render them on the calendar
+      calendarDisplay.innerHTML = `
+        <p>Displaying bookings from ${startDate} to ${endDate}:</p>
+        <div style="margin-top: 15px;">
+          <div style="background-color: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <strong>Billboard A</strong> - Booked from 2025-05-01 to 2025-05-31 (Client: John Doe)
+          </div>
+          <div style="background-color: #f1f1f1; padding: 10px; border-radius: 5px;">
+            <strong>Billboard B</strong> - Booked from 2025-06-15 to 2025-07-15 (Client: Jane Smith)
+          </div>
+        </div>
+      `;
+    }
+
+    // Example bookings data
+    const bookings = [
+      { id: 'BK001', hoarding: 'Billboard A', client: 'John Doe', startDate: '2025-05-01', endDate: '2025-05-31', status: 'active', amount: 1500 },
+      { id: 'BK002', hoarding: 'Billboard B', client: 'Jane Smith', startDate: '2025-06-15', endDate: '2025-07-15', status: 'upcoming', amount: 2000 },
+      { id: 'BK003', hoarding: 'Billboard C', client: 'Robert Johnson', startDate: '2025-04-01', endDate: '2025-04-30', status: 'completed', amount: 1200 },
+    ];
+
+    // Function to add a new booking
+    function addBooking(event) {
+      event.preventDefault();
+      // In a real application, you would collect form data and send it to the server
+      alert('Booking created successfully!');
+      $('#addBookingModal').modal('hide');
+    }
+
+    // Add event listener to the booking form
+    document.querySelector('#addBookingModal form').addEventListener('submit', addBooking);
+  </script>
+</body>
+</html>

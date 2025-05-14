@@ -1,0 +1,303 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hoarding Management - Settings</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* Your existing CSS styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #f0f2f5, #e8eaf6);
+      overflow-x: hidden;
+      transition: margin-left 0.4s;
+      min-height: 100vh;
+      position: relative;
+      padding-bottom: 100px;
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 80px;
+      background: rgba(130, 140, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 20px 0;
+      transition: width 0.4s ease;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+      border-right: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .sidebar:hover {
+      width: 240px;
+    }
+
+    .sidebar .logo {
+      color: #4a4e69;
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 30px;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .sidebar:hover .logo {
+      opacity: 1;
+    }
+
+    .sidebar .menu {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar .menu li {
+      padding: 15px 20px;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .sidebar .menu li:hover {
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+    }
+
+    .sidebar .menu li a {
+      text-decoration: none;
+      color: #4a4e69;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: 0.4s;
+    }
+
+    .sidebar .menu li a i {
+      min-width: 30px;
+      font-size: 1.6rem;
+      margin-right: 10px;
+      transition: transform 0.3s, color 0.3s;
+    }
+
+    .sidebar .menu li:hover a i {
+      transform: rotate(20deg);
+      color: #6c5ce7;
+    }
+
+    /* Content styles */
+    .content {
+      margin-left: 90px;
+      padding: 40px 30px;
+      transition: margin-left 0.4s ease;
+    }
+
+    .sidebar:hover ~ .content {
+      margin-left: 260px;
+    }
+
+    .header {
+      font-size: 2.4rem;
+      color: #22223b;
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .settings-section {
+      margin-bottom: 40px;
+    }
+
+    .settings-section h2 {
+      font-size: 1.8rem;
+      color: #22223b;
+      margin-bottom: 20px;
+    }
+
+    .settings-section .form-group {
+      margin-bottom: 20px;
+    }
+
+    .settings-section .form-group label {
+      font-size: 1.2rem;
+      color: #4a4e69;
+    }
+
+    .settings-section .form-group input,
+    .settings-section .form-group select,
+    .settings-section .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .settings-section .form-group input[type="file"] {
+      padding: 0;
+    }
+
+    .settings-section .form-group button {
+      padding: 10px 20px;
+      background-color: #6c5ce7;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .settings-section .form-group button:hover {
+      background-color: #5c54e0;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 20px 10px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid rgba(0,0,0,0.05);
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+   <div class="sidebar" id="sidebar">
+    <div class="logo">Hoarding</div>
+    <ul class="menu">
+      <li><a href="dashboard.jsp"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="listing.html"><i class="fas fa-list"></i> Listings</a></li>
+      <li><a href="booking.jsp"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+      <li><a href="feedback.html"><i class="fas fa-comment"></i> Feedback</a></li>
+      <li><a href="settings.jsp"><i class="fas fa-cogs"></i> Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Header Section -->
+    <div class="header">
+      <h1>Settings</h1>
+      <p>Manage your account and preferences.</p>
+    </div>
+
+    <!-- User Profile Settings -->
+    <div class="settings-section">
+      <h2>User Profile</h2>
+      <form>
+        <div class="form-group">
+          <label for="profileName">Name</label>
+          <input type="text" class="form-control" id="profileName" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+          <label for="profileEmail">Email</label>
+          <input type="email" class="form-control" id="profileEmail" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label for="profilePhone">Phone</label>
+          <input type="tel" class="form-control" id="profilePhone" placeholder="Enter your phone number">
+        </div>
+        <div class="form-group">
+          <label for="profilePicture">Profile Picture</label>
+          <input type="file" class="form-control" id="profilePicture">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </form>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="settings-section">
+      <h2>Account Settings</h2>
+      <form>
+        <div class="form-group">
+          <label for="currentPassword">Current Password</label>
+          <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password">
+        </div>
+        <div class="form-group">
+          <label for="newPassword">New Password</label>
+          <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
+        </div>
+        <button type="submit" class="btn btn-primary">Change Password</button>
+      </form>
+    </div>
+
+    <!-- Notification Settings -->
+    <div class="settings-section">
+      <h2>Notifications</h2>
+      <form>
+        <div class="form-group">
+          <label for="emailNotifications">Email Notifications</label>
+          <select class="form-control" id="emailNotifications">
+            <option>Enabled</option>
+            <option>Disabled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="smsNotifications">SMS Notifications</label>
+          <select class="form-control" id="smsNotifications">
+            <option>Enabled</option>
+            <option>Disabled</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Preferences</button>
+      </form>
+    </div>
+
+    <!-- General Preferences -->
+    <div class="settings-section">
+      <h2>General Preferences</h2>
+      <form>
+        <div class="form-group">
+          <label for="themePreference">Theme</label>
+          <select class="form-control" id="themePreference">
+            <option>Light</option>
+            <option>Dark</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="languagePreference">Language</label>
+          <select class="form-control" id="languagePreference">
+            <option>English</option>
+            <option>Spanish</option>
+            <option>French</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Preferences</button>
+      </form>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+      &copy; 2025 Hoarding Management Dashboard. All rights reserved.
+    </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

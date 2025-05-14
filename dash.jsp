@@ -1,0 +1,324 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hoarding Management Dashboard</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body */
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      background: #e9f0ff;
+      color: #1a1a2e;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: #1a1a2e;
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: fixed;
+      height: 100%;
+    }
+
+    .logo {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      font-weight: bold;
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .menu {
+      width: 100%;
+    }
+
+    .menu li {
+      list-style: none;
+      margin: 10px 0;
+    }
+
+    .menu a {
+      text-decoration: none;
+      color: white;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-radius: 10px;
+      transition: background 0.3s;
+    }
+
+    .menu a:hover {
+      background: rgba(233, 69, 96, 0.2);
+    }
+
+    /* Content Section */
+    .content {
+      margin-left: 260px;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      margin-bottom: 30px;
+    }
+
+    /* Hero Section */
+    .hero-small {
+      background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+      padding: 50px 5%;
+      text-align: center;
+      border-radius: 15px;
+    }
+
+    .hero-small h2 {
+      color: #0f3460;
+    }
+
+    .hero-small p {
+      color: #1d4ed8;
+    }
+
+    /* Dashboard Sections */
+    .dashboard {
+      padding: 30px 5%;
+      text-align: center;
+    }
+
+    .dashboard h2 {
+      margin-bottom: 25px;
+      color: #1a1a2e;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+      flex: 1 1 300px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-top: 4px solid #e94560;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 25px rgba(233, 69, 96, 0.2);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 22px;
+      color: #1a1a2e;
+    }
+
+    .card p {
+      color: #4b5563;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #e94560, #0f3460);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background: #eef2f7;
+      font-size: 14px;
+      margin-top: 50px;
+      border-radius: 15px;
+    }
+
+    /* Activity List */
+    .activity-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 30px;
+    }
+
+    .activity-list li {
+      background: #ffffff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+    }
+
+    .activity-list li span {
+      color: #e94560;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    /* Carousel */
+    .carousel {
+      margin-top: 50px;
+      text-align: center;
+    }
+
+    .carousel h2 {
+      color: #1a1a2e;
+      margin-bottom: 20px;
+    }
+
+    .carousel-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .carousel img {
+      width: 300px;
+      height: 180px;
+      border-radius: 15px;
+      object-fit: cover;
+      transition: transform 0.5s;
+      border: 3px solid white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .carousel img:hover {
+      transform: scale(1.08);
+    }
+
+    /* Icons */
+    .fas {
+      margin-right: 10px;
+    }
+  </style>
+
+  <!-- AOS Animation Library -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">Hoarding<span>Mgmt</span></div>
+    <ul class="menu">
+      <li><a href="#listings"><i class="fas fa-list"></i> Listings</a></li>
+      <li><a href="#bookings"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+      <li><a href="#feedback"><i class="fas fa-comment"></i> Feedback</a></li>
+      <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+    </ul>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Top Navbar -->
+    <header class="header" data-aos="fade-down">
+      <h1>Hoarding Management Dashboard</h1>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-small" data-aos="fade-up">
+      <div class="hero-text">
+        <h2>Welcome to Your Dashboard</h2>
+        <p>Monitor, manage, and improve your hoarding spaces easily.</p>
+      </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section class="dashboard" id="listings" data-aos="fade-up">
+      <h2>Available Listings</h2>
+      <div class="cards">
+        <div class="card" data-aos="fade-up" data-aos-delay="100">
+          <img src="https://source.unsplash.com/400x200/?billboard" alt="Billboard" style="width:100%; border-radius: 10px; margin-bottom: 15px;">
+          <h3>Downtown Billboard</h3>
+          <p>Prime city center spot. High visibility guaranteed.</p>
+          <button class="btn-primary">View Details</button>
+        </div>
+        <div class="card" data-aos="fade-up" data-aos-delay="200">
+          <img src="https://source.unsplash.com/400x200/?highway" alt="Highway" style="width:100%; border-radius: 10px; margin-bottom: 15px;">
+          <h3>Highway Banner</h3>
+          <p>Heavy traffic exposure 24/7 on major highways.</p>
+          <button class="btn-primary">View Details</button>
+        </div>
+        <div class="card" data-aos="fade-up" data-aos-delay="300">
+          <img src="https://source.unsplash.com/400x200/?mall" alt="Mall" style="width:100%; border-radius: 10px; margin-bottom: 15px;">
+          <h3>City Mall Board</h3>
+          <p>Target elite customers inside popular malls.</p>
+          <button class="btn-primary">View Details</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Activity List -->
+    <h2>Recent Activity</h2>
+    <ul class="activity-list">
+      <li><span><i class="fas fa-hand-pointer"></i> New Booking:</span> Downtown Billboard booked for 3 months.</li>
+      <li><span><i class="fas fa-question-circle"></i> New Inquiry:</span> Highway Banner availability checked.</li>
+      <li><span><i class="fas fa-exclamation-circle"></i> Action Required:</span> City Mall Board contract renewal pending.</li>
+    </ul>
+
+    <!-- Carousel -->
+    <section class="carousel" data-aos="fade-up">
+      <h2>Our Featured Hoardings</h2>
+      <div class="carousel-container">
+        <img src="https://source.unsplash.com/400x200/?city" alt="City">
+        <img src="https://source.unsplash.com/400x200/?advertisement" alt="Advertisement">
+        <img src="https://source.unsplash.com/400x200/?outdoor" alt="Outdoor">
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" data-aos="fade-up">
+      <p>&copy; 2025 HoardingMgmt Dashboard. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- AOS Animation JS -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 800,
+      once: true
+    });
+  </script>
+</body>
+</html>
